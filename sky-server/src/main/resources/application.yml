@@ -2,8 +2,10 @@ server:
   port: 8080
 
 spring:
+  config:
+    location: application-secret.yml
   profiles:
-    active: dev
+    active: dev,secret
   main:
     allow-circular-references: true
   datasource:
