@@ -3,4 +3,6 @@
 *.iml
 *.class
 *Test.java
+application-secret.yml
+application-dev.yml
 **/test/
