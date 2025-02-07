@@ -107,4 +107,45 @@ public class DishServiceImpl implements DishService {
         dishFlavorMapper.deleteByDishIds(ids);
 
     }
+
+    /*
+    * 根据id查询菜品和对应的口味数据
+    * */
+    public DishVO getByIdWithFlavor(Long id) {
+        //根据id查询菜品数据
+        Dish dish = dishMapper.getById(id);
+
+        //根据菜品id查询口味数据
+        List<DishFlavor> dishFlavors = dishFlavorMapper.getByDishId(id);
+
+        //将数据封装到VO
+        DishVO dishVO = new DishVO();
+        BeanUtils.copyProperties(dish, dishVO);
+        dishVO.setFlavors(dishFlavors);
+
+        return dishVO;
+    }
+
+    /*
+    * 根据id修改菜品基本信息及其口味信息
+    * */
+    @Transactional
+    public void updateWithFlavor(DishDTO dishDTO) {
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO, dish);
+        //修改菜品基本信息
+        dishMapper.update(dish);
+
+        //删除原有口味数据
+        dishFlavorMapper.deleteByDishId(dish.getId());
+
+        //重新插入口味数据
+        List<DishFlavor> flavors = dishDTO.getFlavors();
+        if (flavors != null && flavors.size() > 0) {
+            flavors.forEach(dishFlavor -> {
+                dishFlavor.setDishId(dish.getId());
+            });
+            dishFlavorMapper.insertBatch(flavors);
+        }
+    }
 }
