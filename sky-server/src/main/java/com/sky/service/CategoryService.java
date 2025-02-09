@@ -35,5 +35,8 @@ public interface CategoryService {
     * */
     void deleteById(Integer id);
 
+    /*
+    * 根据类型查询分类
+    * */
     List<Category> list(Integer type);
 }
