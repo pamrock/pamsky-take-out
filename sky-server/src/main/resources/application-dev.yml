@@ -11,3 +11,8 @@ sky:
     access-key-id: ${oss.access-key-id}
     access-key-secret: ${oss.secret}
     bucket-name: ${oss.bucket-name}
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: 123456
+    database: 10
