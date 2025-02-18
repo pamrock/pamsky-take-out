@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -170,5 +171,23 @@ public class DishServiceImpl implements DishService {
                 .build();
         List<Dish> dishes = dishMapper.list(dish);
         return dishes;
+    }
+
+    /*
+    * 根据分类id查询菜品及其口味
+    * */
+    public List<DishVO> listWithFlavor(Long categoryId) {
+        List<Dish> dishList = list(categoryId);
+        List<DishVO> dishVOList = new ArrayList<>();
+        dishList.forEach(dish -> {
+            List<DishFlavor> dishFlavors = dishFlavorMapper.getByDishId(dish.getId());
+            DishVO dishVO = new DishVO();
+            BeanUtils.copyProperties(dish, dishVO);
+            dishVO.setFlavors(dishFlavors);
+            dishVOList.add(dishVO);
+
+        });
+
+        return dishVOList;
     }
 }

@@ -15,6 +15,7 @@ import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
 import com.sky.service.SetmealService;
+import com.sky.vo.DishItemVO;
 import com.sky.vo.SetmealVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,25 +90,23 @@ public class SetmealServiceImpl implements SetmealService {
         //查询该套餐下的菜品是否停售
         //根据套餐id查询菜品id
         List<Long> dishIds = setmealDishMapper.getDishIdsBySetmealId(id);
-        dishIds.forEach(dishId -> {
-            //根据菜品id查询菜品状态
-            Integer dishStatus = dishMapper.getById(dishId).getStatus();
-            Setmeal setmeal = Setmeal.builder()
-                    .status(status)
-                    .build();
-            //如要起售套餐
-            if (status == StatusConstant.DISABLE) {
-                if (dishStatus == StatusConstant.DISABLE) {
-                    throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ENABLE_FAILED);
-                }
-                setmealMapper.update(setmeal);
-            }
-            //如要禁售套餐
-            if (status == StatusConstant.ENABLE) {
-                setmealMapper.update(setmeal);
-            }
+        Integer dishStatus = StatusConstant.ENABLE;
 
-        });
+        if (status == StatusConstant.ENABLE) {
+            for (Long dishId : dishIds) {
+                dishStatus = dishMapper.getById(dishId).getStatus();
+                if (dishStatus == StatusConstant.DISABLE) {
+                    throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
+                }
+            }
+        }
+
+        Setmeal setmeal = Setmeal.builder()
+                .status(status)
+                .id(id)
+                .build();
+
+            setmealMapper.update(setmeal);
 
     }
 
@@ -144,5 +143,31 @@ public class SetmealServiceImpl implements SetmealService {
             }
             setmealDishMapper.insertBranch(setmealDishes);
         }
+    }
+
+    /*
+    * 根据分类id查询套餐
+    * */
+    public List<Setmeal> getByCategoryId(Setmeal setmeal) {
+        List<Setmeal> setmeals = setmealMapper.getByCategoryId(setmeal);
+        return setmeals;
+    }
+
+    /*
+    * 根据套餐id查询包含的菜品
+    * */
+    public List<DishItemVO> getDishesBySetmealId(Long setmealId) {
+        List<Long> dishIds = setmealDishMapper.getDishIdsBySetmealId(setmealId);
+        List<DishItemVO> dishItemVOS = new ArrayList<>();
+        for (Long dishId : dishIds) {
+            DishItemVO dishItemVO = new DishItemVO();
+            Integer copies =  setmealDishMapper.getCopiesByDishIdAndSetmealId(setmealId, dishId);
+            Dish dish = dishMapper.getById(dishId);
+
+            BeanUtils.copyProperties(dish, dishItemVO);
+            dishItemVO.setCopies(copies);
+            dishItemVOS.add(dishItemVO);
+        }
+        return dishItemVOS;
     }
 }
