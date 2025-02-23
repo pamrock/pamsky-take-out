@@ -90,4 +90,12 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         List<ShoppingCart> cartList = shoppingCartMaper.list(shoppingCart);
         return cartList;
     }
+
+    /*
+    * 清空购物车
+    * */
+    public void cleanShoppingCart() {
+        Long userId = BaseContext.getCurrentId();
+        shoppingCartMaper.deleteByUserId(userId);
+    }
 }
