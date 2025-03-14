@@ -510,7 +510,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         Map map = new HashMap();
-        map.put("type", 2);//1:来单提醒， 2：客户催单
+        map.put("type", 2);//1 来单提醒， 2 客户催单
         map.put("orderId", id);
         map.put("content", "订单号：" + orders.getNumber());
 
