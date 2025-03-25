@@ -88,6 +88,9 @@
             <if test="end != null">
                 and order_time &lt; #{end}
             </if>
+        <if test="status != null">
+            and status = #{status}
+        </if>
         </where>
     </select>
 
